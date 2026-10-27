@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Market Basket Analysis - Project Report</title>
+<style>
+  @page { size: A4; margin: 14mm 15mm 14mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Cambria", "Times New Roman", serif; font-size: 10.2pt;
+         line-height: 1.3; color: #111; margin: 0; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .page:first-child > h3 { text-align: center; font-size: 11.5pt; margin: 0 0 5pt; font-weight: normal; }
+  h1 { font-size: 19pt; line-height: 1.15; text-align: center; margin: 4pt 0 2pt;
+       color: #1f3864; }
+  h3 { font-size: 11.5pt; text-align: center; margin: 0 0 5pt; font-weight: normal; }
+  .subtitle { text-align: center; font-size: 9.5pt; margin-bottom: 8pt; }
+  h2 { font-size: 13pt; color: #1f3864; border-bottom: 1.4pt solid #1f3864;
+       padding-bottom: 2pt; margin: 10pt 0 5pt; }
+  h3 + h2 { margin-top: 6pt; }
+  h3 { text-align: left; font-weight: bold; font-size: 10.8pt; margin: 7pt 0 2pt; }
+  p { text-align: justify; margin: 0 0 4pt; }
+  ul, ol { margin: 2pt 0 4pt 16pt; padding: 0; }
+  li { margin-bottom: 1.5pt; text-align: justify; }
+  table { border-collapse: collapse; width: 100%; font-size: 8.4pt; margin: 4pt 0 6pt; }
+  th, td { border: 0.5pt solid #888; padding: 2pt 3pt; vertical-align: top; }
+  th { background: #e8eef7; }
+  blockquote { margin: 4pt 0; padding: 4pt 7pt; border-left: 3pt solid #1f3864;
+               background: #eef3fa; font-size: 9.2pt; }
+  img { width: 100%; max-height: 37mm; object-fit: contain; display: block; margin: 3pt auto; }
+  em.caption, p.caption { text-align: center; }
+  code { font-family: "Consolas", monospace; font-size: 8.8pt; background: #f2f2f2;
+         padding: 0 1.5pt; }
+  hr { border: none; border-top: 0.6pt solid #999; margin: 6pt 0; }
+  .title-block { text-align: center; font-size: 9.4pt; margin: 6pt 0 8pt; }
+  .title-block table { width: 74%; margin: 4pt auto; font-size: 9pt; }
+  .title-block td { border: none; padding: 1pt 4pt; }
+  .title-block td:first-child { text-align: right; font-weight: bold; width: 38%; }
+  .title-block td:last-child { text-align: left; }
+  .page:last-child ol { font-size: 8.2pt; line-height: 1.08; margin-top: 1pt; }
+  .page:last-child li { margin-bottom: 0; }
+  .refs ol { margin-left: 14pt; }
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Market Basket Analysis Using Association Rule Mining</h1>
+<h3>A Minor Project Report</h3>
+<p>Submitted in partial fulfilment of the requirements for the minor project</p>
+<div class="title-block"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Student</strong></td>
+<td>[Student Name]</td>
+</tr>
+<tr>
+<td><strong>Roll number</strong></td>
+<td>[Roll Number]</td>
+</tr>
+<tr>
+<td><strong>College</strong></td>
+<td>[College Name]</td>
+</tr>
+<tr>
+<td><strong>Department</strong></td>
+<td>[Department Name]</td>
+</tr>
+<tr>
+<td><strong>Guide</strong></td>
+<td>[Guide Name]</td>
+</tr>
+<tr>
+<td><strong>Academic year</strong></td>
+<td>[Academic Year]</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>Abstract</h2>
+<p>Retail baskets contain patterns: some products are bought together far more often than chance would
+suggest. This project applies <strong>market basket analysis</strong> to the public <strong>Groceries</strong> dataset using the
+<strong>Apriori algorithm</strong>. The 9,835 baskets and 169 products are cleaned, one-hot encoded, and mined at <strong>1%
+minimum support</strong>. Rules are generated with <strong>confidence &gt;= 40%</strong> and <strong>lift &gt; 1</strong>, producing 333 frequent
+itemsets and 62 rules. The strongest rule, <code>{citrus fruit, root vegetables} -&gt; {other vegetables}</code>, has
+support 1.04%, confidence 58.62%, and lift 3.03. The results are visualised and translated into retail
+suggestions. The report also explains why association is not causation and why the dataset's age matters.</p>
+<p><strong>Keywords:</strong> market basket analysis, association rule mining, Apriori, support, confidence, lift</p>
+<hr />
+<h2>1. Introduction and Objectives</h2>
+<h3>1.1 Data mining and market basket analysis</h3>
+<p>Data mining is the process of finding useful patterns in large datasets. In retail, one of the most direct
+patterns is <strong>co-occurrence</strong>: which products appear in the same basket. Market basket analysis, also
+called affinity analysis, studies these combinations.</p>
+<p>If bread and butter appear together much more often than their individual popularity would predict, a store
+can place them near each other, bundle them, or recommend one when the other is selected. Association rule
+mining measures and ranks these relationships using support, confidence, and lift.</p>
+<h3>1.2 Problem statement</h3>
+<p>A store does not automatically know which products form meaningful combinations. The problem is to
+identify product sets that occur often enough to matter, generate directional rules, and separate strong
+associations from combinations that are common only because both products are popular.</p>
+<h3>1.3 Project objectives</h3>
+<ol>
+<li>Load and clean a public grocery transaction dataset.</li>
+<li>Describe the data: transactions, products, and basket sizes.</li>
+<li>Identify the most frequently purchased products.</li>
+<li>Convert baskets into a one-hot encoded table.</li>
+<li>Apply Apriori with a clearly explained minimum support.</li>
+<li>Generate rules using confidence and lift.</li>
+<li>Rank and display the most useful rules.</li>
+<li>Explain the metrics with a worked example.</li>
+<li>Create labelled visualisations and discuss limitations and future scope.</li>
+</ol>
+<h3>1.4 Scope and applications</h3>
+<p>The project is a <strong>descriptive co-occurrence analysis</strong> of one public dataset. It does not use prices,
+margins, quantities, customer IDs, dates, or store locations. It is an educational study, not a production
+recommendation system. Practical uses include product placement, meal bundles, targeted promotions,
+online recommendations, and testing store layouts.</p>
+<hr />
+</div>
+<div class="page">
+<h2>2. Dataset and Methodology</h2>
+<h3>2.1 Dataset source and description</h3>
+<p>The project uses the <strong>Groceries</strong> dataset, distributed with the R package <code>arules</code> and mirrored in the
+<em>Machine Learning with R</em> repository on GitHub
+(<a href="https://github.com/stedy/Machine-Learning-with-R-datasets">https://github.com/stedy/Machine-Learning-with-R-datasets</a>). Each line of <code>groceries.csv</code> is one basket,
+with products separated by commas.</p>
+<p><strong>Computed description:</strong> 9,835 transactions, 169 distinct products, average basket size <strong>4.41</strong>, median
+<strong>3</strong>, maximum <strong>32</strong>, and 2,159 single-item baskets (22.0%). The data are an older public snapshot,
+widely described as 1990s grocery transactions. The file has no date field, so the exact period cannot be
+verified. It also lacks prices, quantities, customer IDs, stores, and promotion flags.</p>
+<h3>2.2 Data cleaning and preprocessing</h3>
+<p>Each line is treated as one basket. The notebook strips whitespace, converts names to lowercase, removes
+empty and missing-like tokens (<code>nan</code>, <code>none</code>, <code>null</code>), removes duplicate products inside a basket, and
+drops empty baskets.</p>
+<p>On the full file, these checks found <strong>no blank rows, no missing-like tokens, and no duplicate items</strong>;
+all 9,835 baskets were valid. The cleaning code is retained because real retail files are rarely tidy.
+<strong>Single-item baskets are kept:</strong> they are real purchases and affect support. They cannot form a pair
+themselves, but removing them would inflate the support of every pair.</p>
+<h3>2.3 Explanation of Apriori</h3>
+<p>Apriori finds frequent itemsets in stages. It counts single products, keeps those above minimum support,
+joins them into pairs, counts the pairs, and continues with larger sets. It uses the <strong>Apriori principle</strong>:
+if an itemset is infrequent, every larger itemset containing it must also be infrequent, so those
+candidates are skipped. This makes the search practical.</p>
+<p>The minimum support is <strong>1%</strong>, so an itemset must appear in at least <code>ceil(0.01 x 9,835) = 99</code> baskets.
+This is a business choice: low enough to find useful pairs, high enough to avoid thousands of one-off
+combinations.</p>
+<h3>2.4 Support, confidence, and lift</h3>
+<p>For a rule <strong>A -&gt; B</strong>:</p>
+<ul>
+<li><strong>Support</strong> = baskets containing both A and B / all baskets.</li>
+<li><strong>Confidence</strong> = baskets containing both / baskets containing A = P(B | A).</li>
+<li><strong>Lift</strong> = confidence / support(B) = P(B | A) / P(B).</li>
+</ul>
+<p>Lift = 1 means no association beyond the baseline; lift &gt; 1 means B is more likely when A is present;
+lift &lt; 1 means they appear together less often than expected.</p>
+<p><strong>Worked example (computed):</strong> for <code>root vegetables -&gt; other vegetables</code>, 1,072 baskets contain root
+vegetables, 1,903 contain other vegetables, and 466 contain both. Support = 466 / 9,835 = <strong>4.74%</strong>;
+confidence = 466 / 1,072 = <strong>43.47%</strong>; lift = 43.47% / 19.35% = <strong>2.25</strong>. So 43.5% of root-vegetable
+baskets also contain other vegetables, 2.25 times the normal rate.</p>
+<h3>2.5 Tools and workflow</h3>
+<p><strong>Tools:</strong> Python 3, Jupyter Notebook, pandas, NumPy, mlxtend, Matplotlib, and Seaborn.</p>
+<p><strong>Workflow:</strong> download the CSV -&gt; read and clean baskets -&gt; describe the data -&gt; one-hot encode -&gt; run
+Apriori at 1% support -&gt; generate rules at 40% confidence and lift &gt; 1 -&gt; sort and visualise -&gt; interpret
+and discuss limitations.</p>
+<p><img alt="Figure 1: Overview of the main analysis outputs" src="../images/05_report_summary.png" /></p>
+<p><strong>Figure 1.</strong> Main outputs: product frequency (left), support vs confidence (middle), and strongest rules
+(right). Full-size versions are in the notebook.</p>
+<hr />
+</div>
+<div class="page">
+<h2>3. Results, Conclusion, and Future Scope</h2>
+<blockquote>
+<p><strong>Computed findings:</strong> the numbers below come from running the notebook on the full 9,835-transaction
+dataset with 1% support, 40% confidence, and lift &gt; 1. They are measured, not estimated.</p>
+</blockquote>
+<h3>3.1 Key findings</h3>
+<ul>
+<li><strong>Whole milk</strong> is the most frequent product: 2,513 baskets (<strong>25.55%</strong>), then other vegetables (1,903;
+  <strong>19.35%</strong>), rolls/buns (1,809; <strong>18.39%</strong>), soda (1,715; <strong>17.44%</strong>), and yogurt (1,372; <strong>13.95%</strong>).</li>
+<li>Apriori found <strong>333 frequent itemsets</strong>; filtering left <strong>62 rules</strong>. The strongest rules are vegetable
+  combinations.</li>
+</ul>
+<h3>3.2 Selected association rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th style="text-align: right;">Support</th>
+<th style="text-align: right;">Confidence</th>
+<th style="text-align: right;">Lift</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{citrus fruit, root vegetables} -&gt; other vegetables</code></td>
+<td style="text-align: right;">1.04%</td>
+<td style="text-align: right;">58.62%</td>
+<td style="text-align: right;">3.03</td>
+</tr>
+<tr>
+<td><code>{root vegetables, tropical fruit} -&gt; other vegetables</code></td>
+<td style="text-align: right;">1.23%</td>
+<td style="text-align: right;">58.45%</td>
+<td style="text-align: right;">3.02</td>
+</tr>
+<tr>
+<td><code>{rolls/buns, root vegetables} -&gt; other vegetables</code></td>
+<td style="text-align: right;">1.22%</td>
+<td style="text-align: right;">50.21%</td>
+<td style="text-align: right;">2.59</td>
+</tr>
+<tr>
+<td><code>{yogurt, root vegetables} -&gt; other vegetables</code></td>
+<td style="text-align: right;">1.29%</td>
+<td style="text-align: right;">50.00%</td>
+<td style="text-align: right;">2.58</td>
+</tr>
+<tr>
+<td><code>{root vegetables, whole milk} -&gt; other vegetables</code></td>
+<td style="text-align: right;">2.32%</td>
+<td style="text-align: right;">47.40%</td>
+<td style="text-align: right;">2.45</td>
+</tr>
+<tr>
+<td><code>{curd, yogurt} -&gt; whole milk</code></td>
+<td style="text-align: right;">1.01%</td>
+<td style="text-align: right;">58.24%</td>
+<td style="text-align: right;">2.28</td>
+</tr>
+</tbody>
+</table>
+<p>The first rule: 1.04% of baskets contain all three products; among baskets with citrus fruit and root
+vegetables, 58.62% also contain other vegetables, 3.03 times baseline. <code>yogurt -&gt; whole milk</code> is more
+common (5.60% support) but weaker (lift 1.57).</p>
+<h3>3.3 Explanation of charts</h3>
+<p>Figure 1 (page 2) summarises the three labelled charts, and full-size versions are in the notebook. The
+<strong>top-products bar chart</strong> shows whole milk leading at 25.55%, followed by other vegetables (19.35%) and rolls/buns (18.39%). The <strong>support-confidence scatter
+plot</strong> places each rule at its support and confidence, with colour showing lift; the upper-right area is
+ideal, but the most common rules are not the brightest. The <strong>top-rules bar chart</strong> ranks the six strongest
+rules by lift, all above 2.2. Every chart has labelled axes and a source note.</p>
+<h3>3.4 Interpretation and retail use</h3>
+<ul>
+<li><strong>Vegetables cluster.</strong> Group root vegetables, citrus fruit, tropical fruit, and onions near other
+  vegetables; test a "vegetable curry pack".</li>
+<li><strong>Dairy supports milk.</strong> Curd, yogurt, butter, and sour cream have lift 1.8-2.3 with milk; use a shared
+  chilled aisle or breakfast bundle. Because milk is already in one in four baskets, discount a
+  complementary item rather than milk, and recommend other vegetables after root vegetables and citrus
+  fruit (lift 3.03).</li>
+</ul>
+<h3>3.5 Conclusion</h3>
+<p>The project demonstrates a complete association rule mining workflow. Vegetables and dairy products
+co-occur in meaningful ways, and some rules are about three times stronger than baseline. However, broad categories
+hide SKU-level detail and association is not causation, so changes should be tested with a controlled
+experiment.</p>
+<h3>3.6 Limitations</h3>
+<ol>
+<li><strong>Age and missing context:</strong> no dates, prices, quantities, customer IDs, or promotions.</li>
+<li><strong>Broad categories and thresholds:</strong> <code>other vegetables</code> is a category, not a specific product, and 1%
+   support plus 40% confidence change which rules appear.</li>
+<li><strong>Association is not causation:</strong> lift does not prove that buying A makes a customer buy B, and the
+   results are not validated on a newer dataset.</li>
+</ol>
+<h3>3.7 Future improvements</h3>
+<p>Add prices and margins, use newer data, try FP-Growth, add stability checks, and test bundles or layouts
+with A/B experiments.</p>
+<hr />
+<h2>References</h2>
+<ol>
+<li>Agrawal, R., &amp; Srikant, R. (1994). <em>Fast Algorithms for Mining Association Rules.</em> VLDB.</li>
+<li>Tan, P.-N., Steinbach, M., &amp; Kumar, V. <em>Introduction to Data Mining.</em> Pearson.</li>
+<li><code>mlxtend</code> documentation: <a href="https://rasbt.github.io/mlxtend/">https://rasbt.github.io/mlxtend/</a></li>
+<li>Groceries dataset mirror: <a href="https://github.com/stedy/Machine-Learning-with-R-datasets">https://github.com/stedy/Machine-Learning-with-R-datasets</a></li>
+<li>R <code>arules</code> package: <a href="https://cran.r-project.org/package=arules">https://cran.r-project.org/package=arules</a></li>
+</ol>
+</div>
+</body>
+</html>
