@@ -779,7 +779,7 @@
         var full = r.a.every(function (x) { return basket.has(x); });
         return { r: r, full: full, hit: hit };
       })
-      .filter(function (m) { return m.full || m.hit > 0; })
+      .filter(function (m) { return !basket.has(m.r.c) && (m.full || m.hit > 0); })
       .sort(function (x, y) {
         if (x.full !== y.full) return x.full ? -1 : 1;
         if (x.hit !== y.hit) return y.hit - x.hit;
